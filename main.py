@@ -12,33 +12,22 @@ from random import randint
 clock = pygame.time.Clock()
 gameWindowHeight=800
 gameWindowWidth=1200
-
-
 terrain=[]
-
-
 highScore=0
-
-
-
 
 screen = pygame.display.set_mode((gameWindowWidth, gameWindowHeight))
 
+playerObject = PlayerClass(screen,xpos=590, ypos=100,terrainCollection=terrain)
 
 def collisionChecker(firstGameObject, secondGameObject):
         if firstGameObject.x + firstGameObject.width > secondGameObject.x and firstGameObject.x < secondGameObject.x + secondGameObject.width and firstGameObject.y + firstGameObject.height > secondGameObject.y and firstGameObject.y < secondGameObject.y + secondGameObject.height:
             return True
-
-playerObject = PlayerClass(screen,xpos=590, ypos=100,terrainCollection=terrain)
-
 
 def createTerrain():
     terrain.append(TerrainClass(screen, randint(-200,gameWindowWidth + 200),randint(-200,gameWindowHeight + 200),randint(10,200),randint(10,200)))
     if collisionChecker(playerObject, terrain[-1]):
         terrain.pop()
         createTerrain()
-
-
 
 done = False
 while not done:

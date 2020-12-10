@@ -8,16 +8,20 @@ font = pygame.font.Font('freesansbold.ttf', 32)
 
 from Player import PlayerClass
 from Terrain import TerrainClass
+from Ball import BallClass
 from random import randint
 clock = pygame.time.Clock()
-gameWindowHeight=800
+gameWindowHeight=400
 gameWindowWidth=1200
 terrain=[]
 highScore=0
 
+
 screen = pygame.display.set_mode((gameWindowWidth, gameWindowHeight))
 
 playerObject = PlayerClass(screen,xpos=590, ypos=100,terrainCollection=terrain)
+
+ball = BallClass(screen,400,200,30,30)
 
 def collisionChecker(firstGameObject, secondGameObject):
         if firstGameObject.x + firstGameObject.width > secondGameObject.x and firstGameObject.x < secondGameObject.x + secondGameObject.width and firstGameObject.y + firstGameObject.height > secondGameObject.y and firstGameObject.y < secondGameObject.y + secondGameObject.height:
@@ -61,13 +65,19 @@ while not done:
                 playerObject.xSpeed -= playerObject.maxSpeed
 
     playerObject.update()
+    ball.update()
+    if collisionChecker(playerObject,ball):
+        ball.ballX = playerObject.xSpeed +1
+        ball.ballY = playerObject.ySpeed +1
+    ball.x += ball.ballX
+    ball.y += ball.ballY
 
         #DRAW GAME OBJECTS:
-    screen.fill((0, 0, 20)) #blank screen. (or maybe draw a background)
+    screen.fill((0, 0, 40)) #blank screen. (or maybe draw a background)
 
 
     playerObject.draw()
-
+    ball.draw()
 
     text = font.render('SCORE: ' + str(playerObject.points), True,(0, 255, 0))
     screen.blit(text,(0,0))

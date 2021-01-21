@@ -15,7 +15,7 @@ gameWindowHeight=400
 gameWindowWidth=1200
 terrain=[]
 highScore=0
-
+pickedup = 0
 
 screen = pygame.display.set_mode((gameWindowWidth, gameWindowHeight))
 
@@ -53,6 +53,10 @@ while not done:
                 playerObject.xSpeed -= playerObject.maxSpeed
             if event.key == pygame.K_RIGHT:
                 playerObject.xSpeed += playerObject.maxSpeed
+            if collisionChecker(playerObject,ball) and event.key == pygame.K_k:
+                pickedup = 1
+
+
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
@@ -63,15 +67,15 @@ while not done:
                 playerObject.xSpeed += playerObject.maxSpeed
             if event.key == pygame.K_RIGHT:
                 playerObject.xSpeed -= playerObject.maxSpeed
-
-    playerObject.update()
-    ball.update()
-    if collisionChecker(playerObject,ball):
-        ball.ballX = playerObject.xSpeed +1
-        ball.ballY = playerObject.ySpeed +1
+            if collisionChecker(playerObject,ball) and event.key == pygame.K_k:
+                pickedup = 0
+    if pickedup == 1:
+        ball.ballX = playerObject.xSpeed
+        ball.ballY = playerObject.ySpeed
     ball.x += ball.ballX
     ball.y += ball.ballY
-
+    playerObject.update()
+    ball.update()
         #DRAW GAME OBJECTS:
     screen.fill((0, 0, 40)) #blank screen. (or maybe draw a background)
 

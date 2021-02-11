@@ -173,13 +173,14 @@ while not done:
         screen.blit(title, (titlePlaceX, titlePlaceY))
         titleGuide = font.render('Go Through the door, and your first day in isolation starts', True, (55, 150, 0))
         screen.blit(titleGuide, (460, 400))
+        text = font.render('Highscore: ' + str(highScore), True, (60, 55, 0))
+        screen.blit(text, (780, 440))
     if inDayCycle == 1:
         text = font.render('Time Left: ' + str(timer), True, (0, 0, 255))
         screen.blit(text, (600, 0))
         text = font.render('SCORE: ' + str(playerObject.points), True, (0, 255, 0))
         screen.blit(text, (300, 0))
-    text = font.render('Highscore: ' + str(highScore), True,(60, 55, 0))
-    screen.blit(text, (0,0))
+
 
     pygame.display.flip()
     clock.tick(60)

@@ -1,4 +1,7 @@
 import pygame
+
+from circular_buffer import CircularBuffer
+
 #test123
 pygame.init()
 pygame.mixer.init(frequency=44100, size=-16, channels=6, buffer=2048)
@@ -6,18 +9,20 @@ font = pygame.font.Font('freesansbold.ttf', 32)
 titleSize = 99
 titleFont = pygame.font.Font('freesansbold.ttf', titleSize)
 
-
+width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 from Player import PlayerClass
 from Terrain import TerrainClass
 from Ball import BallClass
 from random import randint
 clock = pygame.time.Clock()
-gameWindowHeight=1000
-gameWindowWidth=1800
+gameHeight=1080
+gameWidth=1920
 terrain=[]
 items = []
 highScore=0
 pickedup = 0
+MAXITEMSPICKEDUPBYPLAYER = 5
+ITEMTALESPACE = 10
 itemsPickedUp = 0
 inShoppingCenter = 0
 inHome = 0
@@ -29,33 +34,35 @@ tick = 0
 titleGrowing = 1
 titlePlaceX = 450
 titlePlaceY = 250
-screen = pygame.display.set_mode((gameWindowWidth, gameWindowHeight))
+surface = pygame.Surface((gameWidth, gameHeight))
+screen = pygame.display.set_mode((width,height))
+rx =  CircularBuffer(MAXITEMSPICKEDUPBYPLAYER * ITEMTALESPACE)
+ry =  CircularBuffer(MAXITEMSPICKEDUPBYPLAYER * ITEMTALESPACE)
+playerObject = PlayerClass(surface,xpos=855, ypos=500,terrainCollection=terrain)
 
-playerObject = PlayerClass(screen,xpos=855, ypos=500,terrainCollection=terrain)
+Wallet = BallClass(surface, randint(200, gameWidth - 200), randint(200, gameHeight - 200), 30, 30, playerObject)
 
-Wallet = BallClass(screen, randint(200,gameWindowWidth - 200),randint(200,gameWindowHeight - 200),30,30, playerObject)
-
-Door = BallClass(screen, 825, 960, 100, 40, playerObject)
+Door = BallClass(surface, 825, 960, 100, 40, playerObject)
 
 def collisionChecker(firstGameObject, secondGameObject):
         if firstGameObject.x + firstGameObject.width > secondGameObject.x and firstGameObject.x < secondGameObject.x + secondGameObject.width and firstGameObject.y + firstGameObject.height > secondGameObject.y and firstGameObject.y < secondGameObject.y + secondGameObject.height:
             return True
 def createItem():
-    items.append(BallClass(screen, randint(200,gameWindowWidth - 200),randint(200,gameWindowHeight - 200),randint(20,30),randint(20,30), playerObject))
+    items.append(BallClass(surface, randint(200, gameWidth - 200), randint(200, gameHeight - 200), randint(20, 30), randint(20, 30), playerObject))
     for tile in terrain:
         if collisionChecker(tile, items[-1]):
             items.pop()
             createItem()
 def createTerrain():
-    terrain.append(TerrainClass(screen, randint(-200,gameWindowWidth + 200),randint(-200,gameWindowHeight + 200),randint(10,200),randint(10,200)))
+    terrain.append(TerrainClass(surface, randint(-200, gameWidth + 200), randint(-200, gameHeight + 200), randint(10, 200), randint(10, 200)))
     if collisionChecker(playerObject, terrain[-1]):
         terrain.pop()
         createTerrain()
 def spawnShoppingCenter():
 
-    terrain.append(TerrainClass(screen, 300, 250,1200, 50))
-    terrain.append(TerrainClass(screen, 300, 500,1200, 50))
-    terrain.append(TerrainClass(screen, 300, 750,1200, 50))
+    terrain.append(TerrainClass(surface, 300, 250,1200, 50))
+    terrain.append(TerrainClass(surface, 300, 500,1200, 50))
+    terrain.append(TerrainClass(surface, 300, 750,1200, 50))
 
     for i in range(5):
         createItem()
@@ -99,12 +106,17 @@ while not done:
             if collisionChecker(playerObject, Wallet) and event.key == pygame.K_SPACE:
                 Wallet.pickup = 0
 
-    if collisionChecker(Door, playerObject) and itemsPickedUp == 5:
+    if rx.is_full():
+        rx.dequeue()
+    if ry.is_full():
+        ry.dequeue()
+
+    if collisionChecker(Door, playerObject) and itemsPickedUp == MAXITEMSPICKEDUPBYPLAYER:
         terrain.clear()
         inShoppingCenter = 0
         items.clear()
-        Wallet.x = randint(200, gameWindowWidth - 50)
-        Wallet.y = randint(200,gameWindowHeight - 50)
+        Wallet.x = randint(200, gameWidth - 50)
+        Wallet.y = randint(200, gameHeight - 50)
         shoppingSpawned = 0
         itemsPickedUp = 0
         playerObject.points += 1
@@ -119,26 +131,43 @@ while not done:
     if collisionChecker(Door,playerObject) and inMenu == 1:
         inMenu = 0
         inDayCycle = 1
-        timer = 120
+        timer = 60
         inHome = 1
 
+    rx.enqueue(playerObject.x)
+    ry.enqueue(playerObject.y)
     playerObject.update()
     Wallet.update()
-
+    itemcounter = 0
     for item in items:
         if collisionChecker(item , playerObject):
-            item.x = playerObject.x
-            item.y = playerObject.y
             if item.itemcounted == 0:
                 itemsPickedUp += 1
                 item.itemcounted = 1
 
+        if item.itemcounted == 1 :
+            itemcounter += 1
+            item.x = rx.frontOffSet(itemcounter * ITEMTALESPACE)
+            item.y = ry.frontOffSet(itemcounter * ITEMTALESPACE)
     if tick % 60 == 0 and inDayCycle == 1:
         timer -= 1
 
+    if timer < 1 and inDayCycle == 1:
+        inDayCycle = 0
+        with open('highScoreFile', 'w') as file:
+            print("Saving highscore to file:", highScore)
+            file.write(str(highScore))
+        terrain.clear()
+        inShoppingCenter = 0
+        items.clear()
+        Wallet.x = randint(200, gameWidth - 50)
+        Wallet.y = randint(200, gameHeight - 50)
+        shoppingSpawned = 0
+        itemsPickedUp = 0
+        inMenu = 1
 
         #DRAW GAME OBJECTS:
-    screen.fill((0, 0, 40)) #blank screen. (or maybe draw a background)
+    surface.fill((0, 0, 40)) #blank screen. (or maybe draw a background)
 
 
     playerObject.draw()
@@ -151,8 +180,8 @@ while not done:
     Door.draw()
 
     if inShoppingCenter == 1:
-        itemtext = font.render('Items Picked Up: ' + str(itemsPickedUp) + '/5', True, (0, 255, 0))
-        screen.blit(itemtext, (300, 50))
+        itemtext = font.render('Items Picked Up: ' + str(itemsPickedUp) + '/' + str(MAXITEMSPICKEDUPBYPLAYER), True, (0, 255, 0))
+        surface.blit(itemtext, (300, 50))
     if inMenu == 1 and tick % 3 == 0:
         if titleGrowing == 1:
             titleSize += 1
@@ -164,25 +193,23 @@ while not done:
             titlePlaceX += 4
             titlePlaceY += 1
             titleFont = pygame.font.Font('freesansbold.ttf', titleSize)
-        if titleSize < 100:
-            titleGrowing = 1
-        if titleSize > 125:
-            titleGrowing = 0
+
     if inMenu == 1:
         title = titleFont.render('From The Distance', True, (160, 55, 0))
-        screen.blit(title, (titlePlaceX, titlePlaceY))
+        surface.blit(title, (titlePlaceX, titlePlaceY))
         titleGuide = font.render('Go Through the door, and your first day in isolation starts', True, (55, 150, 0))
-        screen.blit(titleGuide, (460, 400))
+        surface.blit(titleGuide, (460, 400))
         text = font.render('Highscore: ' + str(highScore), True, (60, 55, 0))
-        screen.blit(text, (780, 440))
+        surface.blit(text, (780, 440))
     if inDayCycle == 1:
         text = font.render('Time Left: ' + str(timer), True, (0, 0, 255))
-        screen.blit(text, (600, 0))
+        surface.blit(text, (600, 0))
         text = font.render('SCORE: ' + str(playerObject.points), True, (0, 255, 0))
-        screen.blit(text, (300, 0))
+        surface.blit(text, (300, 0))
 
 
-    pygame.display.flip()
+    screen.blit(pygame.transform.scale(surface,(width, height)), (0, 0))
+    pygame.display.update()
     clock.tick(60)
     if playerObject.points > highScore:
         highScore = playerObject.points

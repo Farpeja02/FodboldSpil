@@ -14,30 +14,29 @@ from Player import PlayerClass
 from Terrain import TerrainClass
 from Ball import BallClass
 from random import randint
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() #Clock makes sure the game always runs on 60 ticks per second
 gameHeight=1080
 gameWidth=1920
-terrain=[]
-items = []
+terrain=[] #List of terrain objects
+items = [] #List of item objects
 highScore=0
-pickedup = 0
-MAXITEMSPICKEDUPBYPLAYER = 5
-ITEMTALESPACE = 10
-itemsPickedUp = 0
-inShoppingCenter = 0
-inHome = 0
-shoppingSpawned = 0
-inMenu = 1
-inDayCycle = 0
-timer = 0
-tick = 0
-titleGrowing = 1
+pickedup = 0 #Variable to measure if wallet is picked up
+MAXITEMSPICKEDUPBYPLAYER = 5 #Max items a player can pick up
+ITEMTALESPACE = 10 # How far there is between items picked up
+itemsPickedUp = 0 #How many item the player has pickeed up
+inShoppingCenter = 0 #Is true if in shopping center
+inHome = 0 #Is true if in home
+shoppingSpawned = 0 #Determen if shopping center has spawned
+inMenu = 1 #Is true if in menu
+inDayCycle = 0 #Is true if in day Cycle
+timer = 0 #Number of ticks in game by seconds left
+tick = 0 #Tick counter
 titlePlaceX = 450
 titlePlaceY = 250
-surface = pygame.Surface((gameWidth, gameHeight))
+surface = pygame.Surface((gameWidth, gameHeight)) #Surface is where we draw objects and then scale them onto screen,
 screen = pygame.display.set_mode((width,height))
-rx =  CircularBuffer(MAXITEMSPICKEDUPBYPLAYER * ITEMTALESPACE)
-ry =  CircularBuffer(MAXITEMSPICKEDUPBYPLAYER * ITEMTALESPACE)
+CircularXCord =  CircularBuffer(MAXITEMSPICKEDUPBYPLAYER * ITEMTALESPACE) #Class for circular X cord lists for making items follow player
+CircularYCord =  CircularBuffer(MAXITEMSPICKEDUPBYPLAYER * ITEMTALESPACE) #Class for circular Y cord lists for making items follow player
 playerObject = PlayerClass(surface,xpos=855, ypos=500,terrainCollection=terrain)
 
 Wallet = BallClass(surface, randint(200, gameWidth - 200), randint(200, gameHeight - 200), 30, 30, playerObject)
@@ -106,10 +105,10 @@ while not done:
             if collisionChecker(playerObject, Wallet) and event.key == pygame.K_SPACE:
                 Wallet.pickup = 0
 
-    if rx.is_full():
-        rx.dequeue()
-    if ry.is_full():
-        ry.dequeue()
+    if CircularXCord.is_full():
+        CircularXCord.dequeue()
+    if CircularYCord.is_full():
+        CircularYCord.dequeue()
 
     if collisionChecker(Door, playerObject) and itemsPickedUp == MAXITEMSPICKEDUPBYPLAYER:
         terrain.clear()
@@ -134,8 +133,8 @@ while not done:
         timer = 60
         inHome = 1
 
-    rx.enqueue(playerObject.x)
-    ry.enqueue(playerObject.y)
+    CircularXCord.enqueue(playerObject.x)
+    CircularYCord.enqueue(playerObject.y)
     playerObject.update()
     Wallet.update()
     itemcounter = 0
@@ -147,8 +146,8 @@ while not done:
 
         if item.itemcounted == 1 :
             itemcounter += 1
-            item.x = rx.frontOffSet(itemcounter * ITEMTALESPACE)
-            item.y = ry.frontOffSet(itemcounter * ITEMTALESPACE)
+            item.x = CircularXCord.frontOffSet(itemcounter * ITEMTALESPACE)
+            item.y = CircularYCord.frontOffSet(itemcounter * ITEMTALESPACE)
     if tick % 60 == 0 and inDayCycle == 1:
         timer -= 1
 
@@ -182,17 +181,6 @@ while not done:
     if inShoppingCenter == 1:
         itemtext = font.render('Items Picked Up: ' + str(itemsPickedUp) + '/' + str(MAXITEMSPICKEDUPBYPLAYER), True, (0, 255, 0))
         surface.blit(itemtext, (300, 50))
-    if inMenu == 1 and tick % 3 == 0:
-        if titleGrowing == 1:
-            titleSize += 1
-            titlePlaceX -= 4
-            titlePlaceY -= 1
-            titleFont = pygame.font.Font('freesansbold.ttf', titleSize)
-        if titleGrowing == 0:
-            titleSize -= 1
-            titlePlaceX += 4
-            titlePlaceY += 1
-            titleFont = pygame.font.Font('freesansbold.ttf', titleSize)
 
     if inMenu == 1:
         title = titleFont.render('From The Distance', True, (160, 55, 0))

@@ -73,6 +73,5 @@ class shoppingcenter():
                     item.itemcounted = 1
 
             if item.itemcounted == 1:
-                self.itemcounter += 1
                 item.x = self.CircularXCord.frontOffSet(self.itemcounter * StandardRules.ITEMTALESPACE)
                 item.y = self.CircularYCord.frontOffSet(self.itemcounter * StandardRules.ITEMTALESPACE)

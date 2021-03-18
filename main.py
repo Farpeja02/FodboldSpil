@@ -16,7 +16,7 @@ import Util
 
 
 clock = pygame.time.Clock() #Clock makes sure the game always runs on 60 ticks per second
-timer = 0 #Number of ticks in game by seconds left
+timer = 60 #Number of ticks in game by seconds left
 tick = 0 #Tick counter
 terrain = []  # List of terrain objects
 highScore=1
@@ -34,8 +34,8 @@ Door = Door(surface, 825, 960, 100, 40,)
 
 
 playerObject = PlayerClass(surface,xpos=855, ypos=600,terrainCollection=terrain)
-level = LevelClass( surface, CircularXCord, CircularYCord, Door, Wallet, highScore,playerObject,terrain)
-menu = MenuClass( surface, CircularXCord, CircularYCord, Door, Wallet, highScore,playerObject,terrain)
+level = LevelClass( surface, CircularXCord, CircularYCord, Door, Wallet, highScore,playerObject,terrain,timer)
+menu = MenuClass( surface, CircularXCord, CircularYCord, Door, Wallet, highScore,playerObject,terrain,timer)
 
 
 done = False
@@ -85,19 +85,19 @@ while not done:
         inHome = 1
 
 
-    if tick % 60 == 0 and level.inDayCycle == 1:
+    if tick % 60 == 0 and level.inMenu == 0:
         level.timer -= 1
 
     level.update(playerObject)
         #DRAW GAME OBJECTS:
     surface.fill((0, 0, 40)) #blank screen. (or maybe draw a background)
 
-    level.draw(playerObject)
+    level.draw()
     playerObject.draw()
-    level.DrawText(playerObject)
+    level.DrawText(playerObject,timer)
 
     if level.inMenu == 1:
-        menu.DrawText(playerObject)
+        menu.DrawText(playerObject,timer)
 
 
     screen.blit(pygame.transform.scale(surface,(width, height)), (0, 0))
@@ -105,7 +105,7 @@ while not done:
     clock.tick(60)
     if playerObject.points > highScore:
         highScore = playerObject.points
-    if level.inDayCycle == 1 or level.inMenu == 1:
+    if level.inMenu == 0:
         tick += 1
 #When done is false the while loop above exits, and this code is run:
 with open('highScoreFile', 'w') as file:

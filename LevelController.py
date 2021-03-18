@@ -4,8 +4,8 @@ from random import randint
 from ShoppingCenter import shoppingcenter
 import Util
 class LevelClass:
-    def __init__(self,surface,CircularXCord,CircularYCord,Door,Wallet,HighScore,playerObject,terrain):
-        self.timer = 0
+    def __init__(self,surface,CircularXCord,CircularYCord,Door,Wallet,HighScore,playerObject,terrain,timer):
+        self.timer = timer
         self.whatDay = 1
         self.inHome = 0  # Is true if in home
         self.inMenu = 1  # Is true if in menu
@@ -22,6 +22,11 @@ class LevelClass:
         self.shoppingCenter =shoppingcenter(surface,playerObject, CircularXCord, CircularYCord, Door, Wallet,terrain)
 
     def update(self,playerObject):
+
+        self.CircularXCord.enqueue(playerObject.x)
+        self.CircularYCord.enqueue(playerObject.y)
+
+
         self.shoppingCenter.update()
 
         self.Wallet.update(playerObject)
@@ -47,29 +52,34 @@ class LevelClass:
             self.itemsPickedUp = 0
             self.inMenu = 1
 
-    def DrawText(self,playerObject):
+        if Util.collisionChecker(self.Door, playerObject) and self.inMenu == 1:
+            self.inMenu = 0
+            self.inDayCycle = 1
+            self.inHome = 1
+
+    def DrawText(self,playerObject,timer):
         if self.shoppingCenter.inShoppingCenter == 1:
-            itemtext = StandardRules.font.render('Items Picked Up: ' + str(self.itemsPickedUp) + '/' + str(StandardRules.MAXITEMSPICKEDUPBYPLAYER), True,
+            itemtext = StandardRules.font.render('Items Picked Up: ' + str(self.shoppingCenter.itemsPickedUp) + '/' + str(StandardRules.MAXITEMSPICKEDUPBYPLAYER), True,
                                    (0, 255, 0))
             self.surface.blit(itemtext, (300, 50))
 
         if self.inDayCycle == 1:
-            text = StandardRules.font.render('Time Left: ' + str(self.timer), True, (0, 0, 255))
+            text = StandardRules.font.render('Time Left: ' + str(timer), True, (0, 0, 255))
             self.surface.blit(text, (600, 0))
             text = StandardRules.font.render('SCORE: ' + str(playerObject.points), True, (0, 255, 0))
             self.surface.blit(text, (300, 0))
-    def draw(self,playerObject):
-        if self.inHome == 1:
-            self.Wallet.draw()
+    def draw(self):
+
+        self.Wallet.draw()
         for item in self.shoppingCenter.items:
             item.draw()
         for walls in self.terrain:
             walls.draw()
         self.Door.draw()
-        self.DrawText(playerObject)
+
 
 class MenuClass(LevelClass):
-    def DrawText(self,playerObject):
+    def DrawText(self,playerObject,timer):
         title = StandardRules.titleFont.render('From The Distance', True, (160, 55, 0))
         self.surface.blit(title, (StandardRules.titlePlaceX, StandardRules.titlePlaceY))
         titleGuide = StandardRules.font.render('Go Through the door, and your first day in isolation starts', True, (55, 150, 0))
@@ -79,8 +89,4 @@ class MenuClass(LevelClass):
         text = StandardRules.font.render('You are about to start day: ' + str(self.whatDay), True, (200, 55, 0))
         self.surface.blit(text, (670, 480))
     def update(self,playerObject):
-        if Util.collisionChecker(self.Door, playerObject) and self.inMenu == 1:
-            self.inMenu = 0
-            self.inDayCycle = 1
-            self.timer = 60
-            self.inHome = 1
+        pass

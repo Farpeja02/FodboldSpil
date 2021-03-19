@@ -86,7 +86,7 @@ while not done:
 
 
     if tick % 60 == 0 and level.inMenu == 0:
-        level.timer -= 1
+        timer -= 1
 
     level.update(playerObject)
         #DRAW GAME OBJECTS:

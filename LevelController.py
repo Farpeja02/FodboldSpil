@@ -4,7 +4,7 @@ from random import randint
 from ShoppingCenter import shoppingcenter
 import Util
 class LevelClass:
-    def __init__(self,surface,CircularXCord,CircularYCord,Door,Wallet,HighScore,playerObject,terrain,timer):
+    def __init__(self,surface,CircularCordinateBuffer,Door,Wallet,HighScore,playerObject,terrain,timer):
         self.timer = timer
         self.whatDay = 1
         self.inHome = 0  # Is true if in home
@@ -13,18 +13,18 @@ class LevelClass:
         self.pickedup = 0  # Variable to measure if wallet is picked up
         self.surface = surface
         self.highScore = 1
-        self.CircularXCord = CircularXCord
-        self.CircularYCord = CircularYCord
+        self.CircularCordinateBuffer = CircularCordinateBuffer
+
         self.Door = Door
         self.Wallet = Wallet
         self.HighScore = HighScore
         self.terrain = terrain
-        self.shoppingCenter =shoppingcenter(surface,playerObject, CircularXCord, CircularYCord, Door, Wallet,terrain)
+        self.shoppingCenter =shoppingcenter(surface,playerObject, CircularCordinateBuffer, Door, Wallet,terrain)
 
     def update(self,playerObject):
 
-        self.CircularXCord.enqueue(playerObject.x)
-        self.CircularYCord.enqueue(playerObject.y)
+        self.CircularCordinateBuffer.enqueue((playerObject.x,playerObject.y))
+
 
 
         self.shoppingCenter.update()
@@ -69,8 +69,8 @@ class LevelClass:
             text = StandardRules.font.render('SCORE: ' + str(playerObject.points), True, (0, 255, 0))
             self.surface.blit(text, (300, 0))
     def draw(self):
-
-        self.Wallet.draw()
+        if self.inDayCycle == 1:
+            self.Wallet.draw()
         for item in self.shoppingCenter.items:
             item.draw()
         for walls in self.terrain:

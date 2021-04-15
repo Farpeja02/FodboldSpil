@@ -24,8 +24,8 @@ highScore=1
 
 surface = pygame.Surface((StandardRules.gameWidth, StandardRules.gameHeight)) #Surface is where we draw objects and then scale them onto screen,
 screen = pygame.display.set_mode((width,height))
-CircularXCord =  CircularBuffer(StandardRules.MAXITEMSPICKEDUPBYPLAYER * StandardRules.ITEMTALESPACE) #Class for circular X cord lists for making items follow player
-CircularYCord =  CircularBuffer(StandardRules.MAXITEMSPICKEDUPBYPLAYER * StandardRules.ITEMTALESPACE) #Class for circular Y cord lists for making items follow player
+CircularCordinateBuffer =  CircularBuffer(StandardRules.MAXITEMSPICKEDUPBYPLAYER * StandardRules.ITEMTALESPACE) #Class for circular X cord lists for making items follow player
+
 
 
 Wallet = ItemGeneratorClass(surface, randint(200, StandardRules.gameWidth - 200), randint(200, StandardRules.gameHeight - 200), 30, 30)
@@ -34,8 +34,8 @@ Door = Door(surface, 825, 960, 100, 40,)
 
 
 playerObject = PlayerClass(surface,xpos=855, ypos=600,terrainCollection=terrain)
-level = LevelClass( surface, CircularXCord, CircularYCord, Door, Wallet, highScore,playerObject,terrain,timer)
-menu = MenuClass( surface, CircularXCord, CircularYCord, Door, Wallet, highScore,playerObject,terrain,timer)
+level = LevelClass(surface, CircularCordinateBuffer, Door, Wallet, highScore, playerObject, terrain, timer)
+menu = MenuClass(surface, CircularCordinateBuffer, Door, Wallet, highScore, playerObject, terrain, timer)
 
 
 done = False

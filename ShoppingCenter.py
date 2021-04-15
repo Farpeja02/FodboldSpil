@@ -5,7 +5,7 @@ import Util
 from Terrain import TerrainClass
 
 class shoppingcenter():
-    def __init__(self,surface,playerObject,CircularXCord,CircularYCord,Door,Wallet,terrain):
+    def __init__(self, surface, playerObject, CircularCordinateBuffer, Door, Wallet, terrain):
         self.inShoppingCenter = 0  # Is true if in shopping center
         self.itemsPickedUp = 0  # How many item the player has pickeed up
         self.items = []  # List of item objects
@@ -14,8 +14,7 @@ class shoppingcenter():
         self.surface = surface
         self.itemcounter = 0
         self.playerObject = playerObject
-        self.CircularXCord = CircularXCord
-        self.CircularYCord = CircularYCord
+        self.CircularCordinateBuffer = CircularCordinateBuffer
         self.Door = Door
         self.Wallet = Wallet
         self.terrain = terrain
@@ -40,10 +39,9 @@ class shoppingcenter():
             self.createItem(surface,self.terrain)
 
     def update(self):
-        if self.CircularXCord.is_full():
-            self.CircularXCord.dequeue()
-        if self.CircularYCord.is_full():
-            self.CircularYCord.dequeue()
+        if self.CircularCordinateBuffer.is_full():
+            self.CircularCordinateBuffer.dequeue()
+
 
         if Util.collisionChecker(self.Door, self.playerObject) and self.itemsPickedUp == StandardRules.MAXITEMSPICKEDUPBYPLAYER:
             self.terrain.clear()
@@ -66,12 +64,14 @@ class shoppingcenter():
 
         self.itemFollower()
     def itemFollower(self):
+        itemcounter = 0
         for item in self.items:
             if Util.collisionChecker(item, self.playerObject):
                 if item.itemcounted == 0:
                     self.itemsPickedUp += 1
                     item.itemcounted = 1
 
+
             if item.itemcounted == 1:
-                item.x = self.CircularXCord.frontOffSet(self.itemcounter * StandardRules.ITEMTALESPACE)
-                item.y = self.CircularYCord.frontOffSet(self.itemcounter * StandardRules.ITEMTALESPACE)
+                itemcounter += 1
+                item.x,item.y = self.CircularCordinateBuffer.frontOffSet(itemcounter * StandardRules.ITEMTALESPACE)

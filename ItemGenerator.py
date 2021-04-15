@@ -14,6 +14,7 @@ class ItemGeneratorClass:
 
         self.screenWidth = self.theScreen.get_size()[0] #
         self.screenHeight = self.theScreen.get_size()[1]
+        self.whatSprite = random.randint(1,5)
     def update(self,playerObject):
         if self.pickup == 1:
             self.x = playerObject.x

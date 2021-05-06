@@ -28,9 +28,9 @@ CircularCordinateBuffer =  CircularBuffer(StandardRules.MAXITEMSPICKEDUPBYPLAYER
 
 
 
-Wallet = ItemGeneratorClass(surface, randint(200, StandardRules.gameWidth - 200), randint(200, StandardRules.gameHeight - 200), 30, 30)
+Wallet = ItemGeneratorClass(surface, randint(200, StandardRules.gameWidth - 200), randint(200, StandardRules.gameHeight - 200), 2)
 
-Door = Door(surface, 825, 960, 100, 40,)
+Door = Door(surface, 825, 960, 3)
 
 
 playerObject = PlayerClass(surface,xpos=855, ypos=600,terrainCollection=terrain)
@@ -107,7 +107,7 @@ while not done:
         highScore = playerObject.points
     if level.inMenu == 0:
         tick += 1
-#When done is false the while loop above exits, and this code is run:
+
 with open('highScoreFile', 'w') as file:
     print("Saving highscore to file:", highScore)
     file.write(str(highScore))

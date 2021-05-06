@@ -11,15 +11,15 @@ class PlayerClass:
     def __init__(self,screen,xpos,ypos,terrainCollection):
         self.x=xpos
         self.y=ypos
-        self.width = 40
-        self.height = 40
+
 
         self.theScreen=screen
         self.screenWidth = self.theScreen.get_size()[0] #
         self.screenHeight = self.theScreen.get_size()[1]
         self.terrainCollection=terrainCollection
-
-
+        self.playerIMG = pygame.image.load('Player.png')
+        self.width = self.playerIMG.get_size()[0]
+        self.height = self.playerIMG.get_size()[1]
 
 
     def update(self):
@@ -53,4 +53,11 @@ class PlayerClass:
 
 
     def draw(self):
-        pygame.draw.rect(self.theScreen,self.color, pygame.Rect(self.x,self.y, self.height,self.width))
+        rotationAngle = 0
+
+        if self.xSpeed / self.maxSpeed * 180 > 0:
+            tempFish = pygame.transform.flip(self.playerIMG, True,False)
+        else:
+            tempFish = pygame.transform.rotate(self.playerIMG, rotationAngle)
+
+        self.theScreen.blit(tempFish,(self.x,self.y))

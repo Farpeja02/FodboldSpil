@@ -24,7 +24,7 @@ class shoppingcenter():
 
 
     def createItem(self,surface,terrain):
-        self.items.append(ItemGeneratorClass(surface, randint(200, StandardRules.gameWidth - 200), randint(200, StandardRules.gameHeight - 200), randint(20, 30),randint(20, 30)))
+        self.items.append(ItemGeneratorClass(surface, randint(200, StandardRules.gameWidth - 200), randint(200, StandardRules.gameHeight - 200),1))
         for tile in self.terrain:
             if Util.collisionChecker(tile, self.items[-1]):
                 self.items.pop()
